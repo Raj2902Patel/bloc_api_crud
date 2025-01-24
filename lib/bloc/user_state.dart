@@ -16,3 +16,8 @@ class UserErrorState extends UserState {
   final String message;
   UserErrorState(this.message);
 }
+
+class CheckBoxState extends UserState {
+  final bool isChecked;
+  CheckBoxState(this.isChecked);
+}

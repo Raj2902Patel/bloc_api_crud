@@ -1,6 +1,8 @@
 import 'package:bloc_api/bloc/user_bloc.dart';
 import 'package:bloc_api/ui/addPage.dart';
 import 'package:bloc_api/ui/updatePage.dart';
+import 'package:bloc_api/widgets/toastDialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -68,12 +70,54 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "Name : ${user['userName']}",
-                                  style: const TextStyle(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        "Name : ${user['userName']}",
+                                        style: const TextStyle(
+                                          fontSize: 20.0,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                          color: Colors.grey.withOpacity(0.2)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 10.0,
+                                            right: 10.0,
+                                            top: 5.0,
+                                            bottom: 5.0),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              height: 10,
+                                              width: 10,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    user['userActive'] == true
+                                                        ? Colors.green
+                                                        : Colors.red,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width: 12,
+                                            ),
+                                            user['userActive'] == true
+                                                ? const Text("Working")
+                                                : const Text("Not Working"),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(
                                   height: 5,
@@ -96,6 +140,28 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  "Added On: ${user['createdDate']}",
+                                  style: const TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                user['updatedDate'] == ""
+                                    ? Container()
+                                    : Text(
+                                        "Updated On: ${user['updatedDate']}",
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
                                 const SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment:
@@ -138,9 +204,7 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                                         ),
                                       ),
                                       onPressed: () {
-                                        context.read<UserBloc>().add(
-                                              DeleteUserEvent(user['id']),
-                                            );
+                                        showCustomDialog(context, user['id']);
                                       },
                                       child: const Text(
                                         "REMOVE",
@@ -174,6 +238,113 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
           return Container();
         },
       ),
+    );
+  }
+
+  void showCustomDialog(BuildContext context, String id) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                height: 30,
+              ),
+              const Icon(
+                CupertinoIcons.question_circle,
+                size: 100,
+              ),
+              const SizedBox(
+                height: 12,
+              ),
+              // Main container for dialog content
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  "Are You Sure?",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 25.0,
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              const Text("Do you really want to delete this record?"),
+              const SizedBox(
+                height: 2,
+              ),
+              const Text("This process can't be undone."),
+              const SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    )),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Cancel"),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        )),
+                    onPressed: () {
+                      context.read<UserBloc>().add(
+                            DeleteUserEvent(id),
+                          );
+                      toastDialog(
+                        context: context,
+                        message: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 14.0),
+                            child: Text(
+                              "Data has been deleted successfully!",
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                        ),
+                        leadingIcon: const Icon(Icons.info),
+                        animationDuration: const Duration(seconds: 1),
+                        displayDuration: const Duration(seconds: 2),
+                      );
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      "Remove",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

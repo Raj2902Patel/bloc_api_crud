@@ -8,12 +8,19 @@ part 'user_state.dart';
 class UserBloc extends Bloc<UserEvent, UserState> {
   final String apiURL =
       "https://6735d8b65995834c8a945415.mockapi.io/api/addData/users";
+  bool isChecked = false;
 
   UserBloc() : super(UserInitial()) {
     on<LoadUserEvent>(_onLoadData);
     on<AddUserEvent>(_onAddData);
     on<DeleteUserEvent>(_onDeleteData);
     on<UpdateUserEvent>(_onUpdateData);
+    on<CheckboxUserEvent>(_checkboxUserEvent);
+  }
+
+  void _checkboxUserEvent(CheckboxUserEvent event, Emitter<UserState> emit) {
+    isChecked = !isChecked;
+    emit(CheckBoxState(isChecked));
   }
 
   Future<void> _onUpdateData(
@@ -23,7 +30,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       await Dio().put("$apiURL/${event.userId}", data: {
         'userName': event.userName,
         'userDesignation': event.userDesignation,
-        'userRollNumber': event.userRollNumber
+        'userRollNumber': event.userRollNumber,
+        'userActive': event.isChecked,
+        'updatedDate': event.updatedAt,
       });
       add(LoadUserEvent());
     } catch (error) {
@@ -58,7 +67,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       await Dio().post(apiURL, data: {
         'userName': event.userName,
         'userDesignation': event.userDesignation,
-        'userRollNumber': event.userRollNumber
+        'userRollNumber': event.userRollNumber,
+        'userActive': event.isChecked,
+        'createdDate': event.createdDate,
+        'updatedDate': event.updatedAt,
       });
       add(LoadUserEvent());
     } catch (error) {
