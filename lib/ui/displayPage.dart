@@ -26,18 +26,23 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 15),
-            child: IconButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddDataPage()));
-                },
-                icon: const Icon(
-                  Icons.add,
-                  size: 30,
-                )),
+            padding: const EdgeInsets.only(right: 30),
+            child: InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddDataPage(),
+                  ),
+                );
+              },
+              child: const Icon(
+                Icons.add,
+                size: 30,
+              ),
+            ),
           )
         ],
       ),
@@ -52,7 +57,9 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
         builder: (context, state) {
           if (state is UserLoadingState) {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                backgroundColor: Colors.grey,
+              ),
             );
           } else if (state is UserSuccessState) {
             return state.data.isNotEmpty
@@ -78,7 +85,7 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                                       child: Text(
                                         "Name : ${user['userName']}",
                                         style: const TextStyle(
-                                          fontSize: 20.0,
+                                          fontSize: 18.0,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -126,7 +133,7 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                                   overflow: TextOverflow.ellipsis,
                                   "Designation: ${user['userDesignation']}",
                                   style: const TextStyle(
-                                    fontSize: 18.0,
+                                    fontSize: 16.0,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
@@ -136,7 +143,17 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                                 Text(
                                   "Number: ${user['userRollNumber']}",
                                   style: const TextStyle(
-                                    fontSize: 18.0,
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  "Country Is: ${user['countryName']}",
+                                  style: const TextStyle(
+                                    fontSize: 16.0,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
@@ -146,7 +163,7 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                                 Text(
                                   "Added On: ${user['createdDate']}",
                                   style: const TextStyle(
-                                    fontSize: 18.0,
+                                    fontSize: 16.0,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
@@ -158,7 +175,8 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                                     : Text(
                                         "Updated On: ${user['updatedDate']}",
                                         style: const TextStyle(
-                                          fontSize: 18.0,
+                                          fontSize: 16.0,
+                                          color: Colors.blueAccent,
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),
@@ -180,11 +198,12 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                                       ),
                                       onPressed: () {
                                         Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    UpdateDataPage(
-                                                        user: user)));
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                UpdateDataPage(user: user),
+                                          ),
+                                        );
                                       },
                                       child: const Text(
                                         "UPDATE",

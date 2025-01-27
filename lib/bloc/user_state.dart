@@ -17,7 +17,7 @@ class UserErrorState extends UserState {
   UserErrorState(this.message);
 }
 
-class CheckBoxState extends UserState {
-  final bool isChecked;
-  CheckBoxState(this.isChecked);
+class CountryState extends UserState {
+  final String countrySelected;
+  CountryState(this.countrySelected);
 }

@@ -1,6 +1,7 @@
 import 'package:bloc_api/bloc/user_bloc.dart';
 import 'package:bloc_api/widgets/textFormField.dart';
 import 'package:bloc_api/widgets/toastDialog.dart';
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +20,8 @@ class _UpdateDataPageState extends State<UpdateDataPage> {
   final nameController = TextEditingController();
   final designationController = TextEditingController();
   final numberController = TextEditingController();
+  bool? isChecked;
+  String? displayCountry;
 
   @override
   void initState() {
@@ -26,6 +29,8 @@ class _UpdateDataPageState extends State<UpdateDataPage> {
     nameController.text = widget.user['userName'];
     designationController.text = widget.user['userDesignation'];
     numberController.text = widget.user['userRollNumber'].toString();
+    isChecked = widget.user['userActive'];
+    displayCountry = widget.user['countryName'];
   }
 
   @override
@@ -39,10 +44,8 @@ class _UpdateDataPageState extends State<UpdateDataPage> {
       body: SingleChildScrollView(
         child: BlocBuilder<UserBloc, UserState>(
           builder: (context, state) {
-            bool isChecked = widget.user['userActive'];
-
-            if (state is CheckBoxState) {
-              isChecked = state.isChecked;
+            if (state is CountryState) {
+              displayCountry = state.countrySelected;
             }
 
             return Form(
@@ -91,6 +94,63 @@ class _UpdateDataPageState extends State<UpdateDataPage> {
                       iconWidget: const Icon(Icons.numbers),
                       maxLength: 5),
                   Padding(
+                    padding: const EdgeInsets.all(14.0),
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12.0),
+                          border: Border.all()),
+                      width: double.infinity,
+                      child: InkWell(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        onTap: () {
+                          showCountryPicker(
+                            context: context,
+                            exclude: <String>['KN', 'MF'],
+                            onSelect: (Country country) {
+                              context.read<UserBloc>().add(
+                                    CountryEvent(
+                                        "${country.name} ${country.flagEmoji}"),
+                                  );
+                            },
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(14.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.public),
+                                  const SizedBox(
+                                    width: 12,
+                                  ),
+                                  displayCountry == ""
+                                      ? const Text("Choose Country")
+                                      : SizedBox(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.7,
+                                          child: Text(
+                                            overflow: TextOverflow.ellipsis,
+                                            "Country:  $displayCountry",
+                                          ),
+                                        ),
+                                ],
+                              ),
+                              displayCountry == ""
+                                  ? const Icon(Icons.arrow_drop_down)
+                                  : Container(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
                       children: [
@@ -99,7 +159,9 @@ class _UpdateDataPageState extends State<UpdateDataPage> {
                           child: Checkbox(
                             value: isChecked,
                             onChanged: (value) {
-                              context.read<UserBloc>().add(CheckboxUserEvent());
+                              setState(() {
+                                isChecked = value ?? false;
+                              });
                             },
                           ),
                         ),
@@ -128,35 +190,47 @@ class _UpdateDataPageState extends State<UpdateDataPage> {
                       String formattedDate =
                           DateFormat('dd-MM-yyyy').format(now);
                       if (_formKey.currentState!.validate()) {
-                        context.read<UserBloc>().add(
-                              UpdateUserEvent(
+                        if (displayCountry != "") {
+                          context.read<UserBloc>().add(
+                                UpdateUserEvent(
                                   widget.user['id'],
                                   nameController.text,
                                   designationController.text,
                                   int.parse(numberController.text),
-                                  isChecked,
-                                  formattedDate),
-                            );
-                        toastDialog(
-                          context: context,
-                          message: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 14.0),
-                              child: Text(
-                                "Data has been updated successfully!",
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.w400,
+                                  isChecked!,
+                                  formattedDate,
+                                  displayCountry!,
+                                ),
+                              );
+                          toastDialog(
+                            context: context,
+                            message: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 14.0),
+                                child: Text(
+                                  "Data has been updated successfully!",
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
                               ),
                             ),
+                            leadingIcon: const Icon(Icons.info),
+                            animationDuration: const Duration(seconds: 1),
+                            displayDuration: const Duration(seconds: 2),
+                          );
+                          Navigator.pop(context);
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Center(
+                              child: Text("Country is Required Fields!"),
+                            ),
                           ),
-                          leadingIcon: const Icon(Icons.info),
-                          animationDuration: const Duration(seconds: 1),
-                          displayDuration: const Duration(seconds: 2),
                         );
-                        Navigator.pop(context);
                       }
                     },
                     child: const Text(

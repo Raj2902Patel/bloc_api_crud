@@ -12,6 +12,7 @@ class AddUserEvent extends UserEvent {
   final bool isChecked;
   final String createdDate;
   final String updatedAt;
+  final String countryName;
 
   AddUserEvent(
     this.userName,
@@ -20,6 +21,7 @@ class AddUserEvent extends UserEvent {
     this.isChecked,
     this.createdDate,
     this.updatedAt,
+    this.countryName,
   );
 }
 
@@ -35,9 +37,13 @@ class UpdateUserEvent extends UserEvent {
   final int userRollNumber;
   final bool isChecked;
   final String updatedAt;
+  final String countryName;
 
   UpdateUserEvent(this.userId, this.userName, this.userDesignation,
-      this.userRollNumber, this.isChecked, this.updatedAt);
+      this.userRollNumber, this.isChecked, this.updatedAt, this.countryName);
 }
 
-class CheckboxUserEvent extends UserEvent {}
+class CountryEvent extends UserEvent {
+  final String selectedCountry;
+  CountryEvent(this.selectedCountry);
+}
